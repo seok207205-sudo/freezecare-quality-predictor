@@ -177,6 +177,89 @@ const foodRecommendations = {
 
 const riskLevels = ["낮음", "보통", "높음", "매우 높음"];
 
+const categoryKeywordMap = {
+  "과일류": [
+    "apple",
+    "banana",
+    "strawberry",
+    "orange",
+    "lemon",
+    "pineapple",
+    "mango",
+    "granny smith",
+    "fig",
+    "pomegranate",
+    "jackfruit"
+  ],
+  "채소류": [
+    "broccoli",
+    "cabbage",
+    "carrot",
+    "cucumber",
+    "mushroom",
+    "bell pepper",
+    "zucchini",
+    "artichoke",
+    "cauliflower",
+    "spaghetti squash",
+    "acorn squash"
+  ],
+  "육류": [
+    "meat",
+    "pork",
+    "beef",
+    "steak",
+    "chicken",
+    "ham",
+    "sausage",
+    "bacon",
+    "drumstick",
+    "meat loaf"
+  ],
+  "생선류": [
+    "fish",
+    "salmon",
+    "mackerel",
+    "seafood",
+    "crab",
+    "lobster",
+    "squid",
+    "tench",
+    "goldfish",
+    "eel",
+    "sturgeon"
+  ],
+  "빵·떡류": [
+    "bread",
+    "bagel",
+    "bakery",
+    "cake",
+    "bun",
+    "pretzel",
+    "dough",
+    "loaf",
+    "burrito"
+  ],
+  "조리식품": [
+    "pizza",
+    "hotdog",
+    "rice",
+    "soup",
+    "stew",
+    "dumpling",
+    "curry",
+    "plate",
+    "carbonara",
+    "guacamole",
+    "potpie",
+    "consomme"
+  ]
+};
+
+let aiModelPromise;
+let aiModel;
+let lastAiCategory = null;
+
 function getSelectedValue(form, name) {
   return new FormData(form).get(name);
 }
@@ -201,6 +284,16 @@ function updateFoodDetailOptions() {
   detailSelect.innerHTML = foodDetails[selectedFood]
     .map((detail) => `<option value="${detail.name}">${detail.name}</option>`)
     .join("");
+}
+
+function selectFoodCategory(category) {
+  const foodInput = document.querySelector(`input[name="food"][value="${category}"]`);
+  if (!foodInput) {
+    return;
+  }
+  foodInput.checked = true;
+  updateFoodDetailOptions();
+  document.querySelector("#food-detail").value = foodDetails[category][0].name;
 }
 
 function analyzeQuality({ food, detail, period, thaw, priority }) {
@@ -364,6 +457,152 @@ function renderEvidence(items) {
     .join("");
 }
 
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const existingScript = document.querySelector(`script[src="${src}"]`);
+    if (existingScript) {
+      existingScript.addEventListener("load", resolve, { once: true });
+      existingScript.addEventListener("error", reject, { once: true });
+      if (existingScript.dataset.loaded === "true") {
+        resolve();
+      }
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = src;
+    script.async = true;
+    script.addEventListener(
+      "load",
+      () => {
+        script.dataset.loaded = "true";
+        resolve();
+      },
+      { once: true }
+    );
+    script.addEventListener("error", reject, { once: true });
+    document.head.appendChild(script);
+  });
+}
+
+function loadAiModel() {
+  if (!aiModelPromise) {
+    aiModelPromise = Promise.resolve()
+      .then(() => loadScript("https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"))
+      .then(() => loadScript("https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.1/dist/mobilenet.min.js"))
+      .then(() => window.mobilenet.load())
+      .then((model) => {
+        aiModel = model;
+        return model;
+      });
+  }
+  return aiModelPromise;
+}
+
+function mapPredictionsToCategory(predictions) {
+  const scores = {};
+
+  predictions.forEach((prediction) => {
+    const label = prediction.className.toLowerCase();
+    Object.entries(categoryKeywordMap).forEach(([category, keywords]) => {
+      if (keywords.some((keyword) => label.includes(keyword))) {
+        scores[category] = Math.max(scores[category] || 0, prediction.probability);
+      }
+    });
+  });
+
+  return Object.entries(scores)
+    .sort((first, second) => second[1] - first[1])
+    .map(([category, confidence]) => ({ category, confidence }))[0];
+}
+
+function setAiStatus(message, type = "default") {
+  const status = document.querySelector("#ai-status");
+  status.textContent = message;
+  status.className = `ai-status ${type}`;
+}
+
+function renderAiLabels(predictions) {
+  const labels = document.querySelector("#ai-labels");
+  labels.innerHTML = predictions
+    .map((prediction) => {
+      const percent = Math.round(prediction.probability * 100);
+      return `<span>${prediction.className} · ${percent}%</span>`;
+    })
+    .join("");
+}
+
+function renderAiResult(categoryResult, predictions) {
+  const result = document.querySelector("#ai-result");
+  const applyButton = document.querySelector("#apply-ai-result");
+  const categoryText = document.querySelector("#ai-category-text");
+  const confidenceText = document.querySelector("#ai-confidence-text");
+  const confidenceBar = document.querySelector("#ai-confidence-bar");
+
+  result.classList.remove("hidden");
+  renderAiLabels(predictions);
+
+  if (!categoryResult) {
+    lastAiCategory = null;
+    categoryText.textContent = "분류 불가";
+    confidenceText.textContent = "0%";
+    confidenceBar.style.width = "0%";
+    applyButton.disabled = true;
+    setAiStatus("자동 분류가 불확실합니다. 예측하기 화면에서 식품 종류를 직접 선택해 주세요.", "warning");
+    return;
+  }
+
+  const confidencePercent = Math.round(categoryResult.confidence * 100);
+  lastAiCategory = categoryResult.category;
+  categoryText.textContent = categoryResult.category;
+  confidenceText.textContent = `${confidencePercent}%`;
+  confidenceBar.style.width = `${confidencePercent}%`;
+  applyButton.disabled = false;
+  selectFoodCategory(categoryResult.category);
+
+  if (categoryResult.confidence < 0.35) {
+    setAiStatus("자동 분류가 불확실합니다. 추천 분류를 적용하되, 사용자가 최종 확인해 주세요.", "warning");
+  } else {
+    setAiStatus("AI 분석이 완료되었습니다. 결과를 기존 예측 화면에 적용할 수 있습니다.", "success");
+  }
+}
+
+function analyzeUploadedImage(file) {
+  const preview = document.querySelector("#ai-preview");
+  const previewImage = document.querySelector("#ai-preview-image");
+  const result = document.querySelector("#ai-result");
+  const applyButton = document.querySelector("#apply-ai-result");
+
+  if (!file || !file.type.startsWith("image/")) {
+    preview.classList.add("hidden");
+    result.classList.add("hidden");
+    applyButton.disabled = true;
+    lastAiCategory = null;
+    setAiStatus("이미지 파일만 업로드할 수 있습니다. JPG, PNG, WebP 파일을 선택해 주세요.", "warning");
+    return;
+  }
+
+  const imageUrl = URL.createObjectURL(file);
+  previewImage.onload = () => {
+    URL.revokeObjectURL(imageUrl);
+    setAiStatus("AI 모델을 불러오는 중입니다. 인터넷 연결 상태에 따라 시간이 걸릴 수 있습니다.", "loading");
+    loadAiModel()
+      .then((model) => model.classify(previewImage, 5))
+      .then((predictions) => renderAiResult(mapPredictionsToCategory(predictions), predictions))
+      .catch(() => {
+        result.classList.add("hidden");
+        applyButton.disabled = true;
+        lastAiCategory = null;
+        setAiStatus("AI 모델을 불러오지 못했습니다. 수동 선택을 이용해 주세요.", "warning");
+      });
+  };
+  previewImage.src = imageUrl;
+  preview.classList.remove("hidden");
+  result.classList.add("hidden");
+  applyButton.disabled = true;
+  setAiStatus("이미지를 준비하는 중입니다.", "loading");
+}
+
 function renderResult(data, result) {
   const resultEl = document.querySelector("#result");
   resultEl.innerHTML = `
@@ -439,6 +678,18 @@ document.querySelector("#predict-form").addEventListener("submit", (event) => {
 
 document.querySelectorAll('input[name="food"]').forEach((input) => {
   input.addEventListener("change", updateFoodDetailOptions);
+});
+
+document.querySelector("#ai-image-input").addEventListener("change", (event) => {
+  analyzeUploadedImage(event.currentTarget.files[0]);
+});
+
+document.querySelector("#apply-ai-result").addEventListener("click", () => {
+  if (lastAiCategory) {
+    selectFoodCategory(lastAiCategory);
+  }
+  document.querySelector('[data-page="main"]').click();
+  document.querySelector("#predict-form").scrollIntoView({ behavior: "smooth", block: "start" });
 });
 
 document.querySelectorAll(".nav-button").forEach((button) => {
