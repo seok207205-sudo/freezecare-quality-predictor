@@ -187,6 +187,10 @@ function addProblem(problems, text) {
   }
 }
 
+function addEvidence(evidence, condition, score, reason) {
+  evidence.push({ condition, score, reason });
+}
+
 function getFoodDetail(food, detailName) {
   return foodDetails[food].find((detail) => detail.name === detailName) || foodDetails[food][0];
 }
@@ -202,100 +206,128 @@ function updateFoodDetailOptions() {
 function analyzeQuality({ food, detail, period, thaw, priority }) {
   let score = 1;
   const problems = [];
+  const evidence = [
+    {
+      condition: "기본 위험",
+      score: "+1",
+      reason: "냉동·해동 과정 자체가 수분 이동과 조직 변화 가능성을 포함합니다."
+    }
+  ];
   const selectedDetail = getFoodDetail(food, detail);
 
   if (period === "3개월 이내") {
     score += 1;
+    addEvidence(evidence, "냉동 기간 3개월 이내", "+1", "보관 기간이 길어질수록 얼음 결정 성장과 품질 저하 가능성이 커집니다.");
     addProblem(problems, "냉동 기간 증가로 인한 얼음 결정 성장과 조직감 저하 가능성");
   }
 
   if (period === "6개월 이상") {
     score += 2;
+    addEvidence(evidence, "냉동 기간 6개월 이상", "+2", "장기 냉동은 수분 재배치, 산화, 풍미 저하 가능성을 높입니다.");
     addProblem(problems, "장기 냉동으로 인한 수분 재배치와 풍미 저하 가능성");
   }
 
   if (thaw === "실온 해동") {
     score += 2;
+    addEvidence(evidence, "실온 해동", "+2", "식품 표면 온도가 빠르게 올라 품질 불균일과 안전성 위험이 커집니다.");
     addProblem(problems, "해동 중 온도 상승으로 인한 품질 불균일 및 안전성 저하 가능성");
   }
 
   if (thaw === "전자레인지 해동") {
     score += 1;
+    addEvidence(evidence, "전자레인지 해동", "+1", "일부 부위가 먼저 가열되어 표면 건조와 부분 조리가 생길 수 있습니다.");
     addProblem(problems, "해동 중 일부 부위가 먼저 가열되어 표면 건조가 생길 가능성");
   }
 
   if (thaw === "흐르는 물 해동") {
     score += 1;
+    addEvidence(evidence, "흐르는 물 해동", "+1", "표면과 내부의 해동 속도 차이로 품질 불균일이 생길 수 있습니다.");
     addProblem(problems, "표면과 내부의 해동 속도 차이로 품질 불균일이 생길 가능성");
   }
 
   if (thaw === "냉장 해동") {
     score -= 1;
+    addEvidence(evidence, "냉장 해동", "-1", "저온에서 천천히 해동되어 드립 손실과 미생물 증식 위험을 줄이는 데 유리합니다.");
   }
 
   if (thaw === "바로 가열 조리") {
+    addEvidence(evidence, "바로 가열 조리", "0", "해동 시간을 줄일 수 있지만 중심부 가열 불균일을 확인해야 합니다.");
     addProblem(problems, "중심부 가열이 늦어 내부 가열 불균일이 발생할 가능성");
   }
 
   if ((food === "육류" || food === "생선류") && thaw !== "냉장 해동") {
     score += 1;
+    addEvidence(evidence, `${food} + 비냉장 해동`, "+1", "동물성 식품은 드립 손실이 육즙, 풍미, 안전성 판단에 크게 연결됩니다.");
     addProblem(problems, "드립 손실 증가로 육즙과 풍미가 감소할 가능성");
   }
 
   if (food === "육류" && thaw === "실온 해동" && (period === "3개월 이내" || period === "6개월 이상")) {
     score += 1;
+    addEvidence(evidence, "육류 + 실온 해동 + 장기 냉동", "+1", "보수성 저하가 누적되어 조리 후 질김과 육즙 손실이 커질 수 있습니다.");
     addProblem(problems, "육류 조직의 보수성 저하로 조리 후 질김이 증가할 가능성");
   }
 
   if (food === "생선류" && thaw === "실온 해동") {
     score += 2;
+    addEvidence(evidence, "생선류 + 실온 해동", "+2", "수산물은 조직이 약하고 수분이 많아 실온 해동 시 드립과 냄새 변화가 두드러질 수 있습니다.");
     addProblem(problems, "생선 조직이 약해 드립 손실과 비린내 증가 위험이 큽니다");
   }
 
   if (food === "채소류" && (period === "3개월 이내" || period === "6개월 이상")) {
     score += 1;
+    addEvidence(evidence, "채소류 + 장기 냉동", "+1", "식물 세포벽 손상으로 해동 후 아삭한 조직감이 줄어들 수 있습니다.");
     addProblem(problems, "세포벽 손상으로 아삭한 조직감이 감소할 가능성");
   }
 
   if (food === "과일류") {
     score += 1;
+    addEvidence(evidence, "과일류", "+1", "수분 함량이 높고 조직이 약해 해동 후 물러짐과 과즙 손실이 나타나기 쉽습니다.");
     addProblem(problems, "해동 후 수분 손실과 물러짐이 나타날 가능성");
   }
 
   if (food === "빵·떡류" && thaw === "전자레인지 해동") {
+    addEvidence(evidence, "빵·떡류 + 전자레인지", "0", "짧은 해동은 유리하지만 과열 시 표면 건조와 전분 노화감이 커질 수 있습니다.");
     addProblem(problems, "전자레인지 과열 시 표면 건조와 딱딱해짐이 생길 가능성");
   }
 
   if (food === "조리식품" && thaw === "바로 가열 조리") {
     score -= 1;
+    addEvidence(evidence, "조리식품 + 바로 가열", "-1", "완성 조리식품은 바로 가열이 편리하고 해동 방치 시간을 줄일 수 있습니다.");
     addProblem(problems, "바로 가열은 비교적 적절하지만 중심부 가열 불균일에 주의해야 합니다");
   }
 
   if (priority === "안전성" && thaw === "실온 해동") {
     score += 1;
+    addEvidence(evidence, "안전성 중시 + 실온 해동", "+1", "안전성을 우선할 때 실온 방치는 가장 불리한 조건으로 판단했습니다.");
     addProblem(problems, "안전성을 중시할 경우 실온 방치는 특히 불리한 조건입니다");
   }
 
   if (priority === "식감" && (food === "채소류" || food === "과일류")) {
+    addEvidence(evidence, "식감 중시 + 식물성 식품", "0", "세포 조직 손상에 따른 물러짐을 주요 관찰 포인트로 반영했습니다.");
     addProblem(problems, "식감을 중시할 경우 세포 조직 손상으로 인한 물러짐을 고려해야 합니다");
   }
 
   if (priority === "수분 유지") {
+    addEvidence(evidence, "수분 유지 중시", "0", "드립 손실과 보수성 저하를 주요 해석 기준으로 반영했습니다.");
     addProblem(problems, "수분 유지가 중요할수록 드립 손실을 줄이는 저온 해동이 유리합니다");
   }
 
   if (["딸기", "바나나", "시금치"].includes(detail)) {
     score += 1;
+    addEvidence(evidence, `${detail} 세부 특성`, "+1", "대표 식품의 조직이 약해 해동 후 물러짐이나 수분 빠짐이 비교적 잘 나타납니다.");
     addProblem(problems, `${detail}은 조직이 약해 해동 후 물러짐이나 수분 빠짐이 비교적 잘 나타납니다`);
   }
 
   if (["볶음밥", "만두", "국·찌개"].includes(detail) && thaw === "바로 가열 조리") {
+    addEvidence(evidence, `${detail} + 바로 가열`, "0", "편리성은 높지만 중간 확인을 통해 중심부 가열 불균일을 줄여야 합니다.");
     addProblem(problems, `${detail}은 바로 가열할 수 있지만 중간 확인을 통해 내부 가열 불균일을 줄여야 합니다`);
   }
 
   const boundedScore = Math.max(0, Math.min(score, 3));
   return {
     risk: riskLevels[boundedScore],
+    rawScore: score,
+    evidence,
     problems: problems.length ? problems : ["현재 조건에서는 큰 품질 저하 요인이 비교적 적습니다."],
     recommendation: foodRecommendations[food],
     detailNote: selectedDetail.note,
@@ -316,6 +348,20 @@ function getRiskClass(risk) {
 
 function renderList(items) {
   return items.map((item) => `<li>${item}</li>`).join("");
+}
+
+function renderEvidence(items) {
+  return items
+    .map(
+      (item) => `
+        <li>
+          <strong>${item.condition}</strong>
+          <span class="score-chip">${item.score}</span>
+          <p>${item.reason}</p>
+        </li>
+      `
+    )
+    .join("");
 }
 
 function renderResult(data, result) {
@@ -356,6 +402,11 @@ function renderResult(data, result) {
         <strong>드립 손실</strong>
         <p>밖으로 빠진 수분이 맛과 식감 저하로 이어집니다.</p>
       </div>
+    </div>
+    <div class="result-block">
+      <h3>위험도 산출 근거</h3>
+      <p class="score-note">조건별 점수를 합산한 뒤 0~3 범위로 보정하여 낮음, 보통, 높음, 매우 높음으로 변환했습니다. 현재 원점수는 <strong>${result.rawScore}</strong>입니다.</p>
+      <ul class="evidence-list">${renderEvidence(result.evidence)}</ul>
     </div>
     <div class="result-block">
       <h3>예상되는 주요 문제</h3>
