@@ -31,6 +31,141 @@ const foodTips = {
   ]
 };
 
+const foodDetails = {
+  "육류": [
+    {
+      name: "돼지고기",
+      note: "지방과 단백질 조직 사이에서 드립이 생기기 쉬워 저온 해동이 유리합니다.",
+      image: "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      name: "닭고기",
+      note: "두께가 불균일한 부위는 해동과 가열이 고르지 않을 수 있습니다.",
+      image: "https://images.unsplash.com/photo-1604503468506-a8da13d82791?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      name: "소고기",
+      note: "육즙 손실이 식감과 풍미에 크게 연결되므로 냉장 해동이 적절합니다.",
+      image: "https://images.unsplash.com/photo-1551028150-64b9f398f678?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      name: "양고기",
+      note: "향과 지방 산패 느낌이 드러날 수 있어 장기 냉동과 실온 해동을 피하는 것이 좋습니다.",
+      image: "https://images.unsplash.com/photo-1603048297172-c92544798d5a?auto=format&fit=crop&w=900&q=80"
+    }
+  ],
+  "생선류": [
+    {
+      name: "고등어",
+      note: "지방이 많은 생선은 산패와 비린내가 품질 평가에 크게 작용합니다.",
+      image: "https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      name: "연어",
+      note: "조직이 부드러워 급격한 해동 시 드립 손실과 표면 손상이 두드러질 수 있습니다.",
+      image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      name: "대구",
+      note: "살이 쉽게 부서질 수 있어 천천히 해동하고 물리적 압박을 줄이는 것이 좋습니다.",
+      image: "https://images.unsplash.com/photo-1534766555764-ce878a5e3a2b?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      name: "오징어",
+      note: "과도한 가열이나 장시간 해동은 질김과 수분 손실로 이어질 수 있습니다.",
+      image: "https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?auto=format&fit=crop&w=900&q=80"
+    }
+  ],
+  "채소류": [
+    {
+      name: "브로콜리",
+      note: "세포벽 손상으로 아삭함이 줄 수 있어 바로 조리하는 방식이 잘 맞습니다.",
+      image: "https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      name: "시금치",
+      note: "잎채소는 해동 후 물러짐이 쉽게 나타나므로 국이나 볶음 조리에 적합합니다.",
+      image: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      name: "당근",
+      note: "단단한 조직이지만 장기 냉동 후에는 표면 수분과 식감 변화가 나타날 수 있습니다.",
+      image: "https://images.unsplash.com/photo-1445282768818-728615cc910a?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      name: "혼합채소",
+      note: "재료마다 크기와 조직이 달라 해동과 조리 균일성에 차이가 생길 수 있습니다.",
+      image: "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=900&q=80"
+    }
+  ],
+  "과일류": [
+    {
+      name: "딸기",
+      note: "수분이 많고 조직이 약해 해동 후 물러짐과 과즙 손실이 쉽게 보입니다.",
+      image: "https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      name: "블루베리",
+      note: "껍질이 터지면 색소와 수분이 빠져나와 외관 변화가 커질 수 있습니다.",
+      image: "https://images.unsplash.com/photo-1498557850523-fd3d118b962e?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      name: "망고",
+      note: "해동 후 부드러운 질감이 더 강해져 생과보다 가공용으로 쓰기 좋습니다.",
+      image: "https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      name: "바나나",
+      note: "세포 손상과 갈변이 쉽게 나타나므로 스무디나 베이킹 재료에 적합합니다.",
+      image: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=900&q=80"
+    }
+  ],
+  "빵·떡류": [
+    {
+      name: "식빵",
+      note: "수분이 빠지면 푸석함이 커져 짧은 가열이나 토스트 조리가 적절합니다.",
+      image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      name: "바게트",
+      note: "겉면 건조가 빠르게 나타나므로 과도한 전자레인지 가열은 피하는 것이 좋습니다.",
+      image: "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      name: "떡",
+      note: "전분 노화로 딱딱해질 수 있어 수분을 보충하며 짧게 가열하면 좋습니다.",
+      image: "https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      name: "베이글",
+      note: "두께가 있어 겉은 마르고 속은 차가운 상태가 될 수 있으므로 나누어 가열합니다.",
+      image: "https://images.unsplash.com/photo-1585478259715-876acc5be8eb?auto=format&fit=crop&w=900&q=80"
+    }
+  ],
+  "조리식품": [
+    {
+      name: "볶음밥",
+      note: "알갱이 사이 온도 차이가 생길 수 있어 중간에 섞어 가열하는 것이 좋습니다.",
+      image: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      name: "만두",
+      note: "피와 속의 수분 이동이 달라 터짐이나 속 가열 부족이 생길 수 있습니다.",
+      image: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      name: "카레",
+      note: "소스가 있는 음식은 저어 주면 중심부 가열 불균일을 줄일 수 있습니다.",
+      image: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      name: "국·찌개",
+      note: "액체가 있어 가열은 비교적 쉽지만 큰 재료는 중심 온도 확인이 필요합니다.",
+      image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=900&q=80"
+    }
+  ]
+};
+
 const foodRecommendations = {
   "육류": "냉장 해동",
   "생선류": "냉장 해동",
@@ -52,9 +187,22 @@ function addProblem(problems, text) {
   }
 }
 
-function analyzeQuality({ food, period, thaw, priority }) {
+function getFoodDetail(food, detailName) {
+  return foodDetails[food].find((detail) => detail.name === detailName) || foodDetails[food][0];
+}
+
+function updateFoodDetailOptions() {
+  const selectedFood = document.querySelector('input[name="food"]:checked').value;
+  const detailSelect = document.querySelector("#food-detail");
+  detailSelect.innerHTML = foodDetails[selectedFood]
+    .map((detail) => `<option value="${detail.name}">${detail.name}</option>`)
+    .join("");
+}
+
+function analyzeQuality({ food, detail, period, thaw, priority }) {
   let score = 1;
   const problems = [];
+  const selectedDetail = getFoodDetail(food, detail);
 
   if (period === "3개월 이내") {
     score += 1;
@@ -136,11 +284,22 @@ function analyzeQuality({ food, period, thaw, priority }) {
     addProblem(problems, "수분 유지가 중요할수록 드립 손실을 줄이는 저온 해동이 유리합니다");
   }
 
+  if (["딸기", "바나나", "시금치"].includes(detail)) {
+    score += 1;
+    addProblem(problems, `${detail}은 조직이 약해 해동 후 물러짐이나 수분 빠짐이 비교적 잘 나타납니다`);
+  }
+
+  if (["볶음밥", "만두", "국·찌개"].includes(detail) && thaw === "바로 가열 조리") {
+    addProblem(problems, `${detail}은 바로 가열할 수 있지만 중간 확인을 통해 내부 가열 불균일을 줄여야 합니다`);
+  }
+
   const boundedScore = Math.max(0, Math.min(score, 3));
   return {
     risk: riskLevels[boundedScore],
     problems: problems.length ? problems : ["현재 조건에서는 큰 품질 저하 요인이 비교적 적습니다."],
     recommendation: foodRecommendations[food],
+    detailNote: selectedDetail.note,
+    image: selectedDetail.image,
     explanation:
       "냉동 과정에서는 식품 내부의 수분이 얼음 결정으로 변하면서 조직 구조에 영향을 줄 수 있습니다. 해동 과정에서 이 수분이 밖으로 빠져나오면 드립 손실이 발생하고, 식감과 풍미가 저하될 수 있습니다."
   };
@@ -169,9 +328,35 @@ function renderResult(data, result) {
     <div class="risk-banner ${getRiskClass(result.risk)}">
       <span>품질 저하 위험도</span>
       <strong>${result.risk}</strong>
-      <span>${data.food} · ${data.period} · ${data.thaw}</span>
+      <span>${data.food} / ${data.detail} · ${data.period} · ${data.thaw}</span>
     </div>
+    <figure class="food-visual">
+      <img src="${result.image}" alt="${data.detail} 참고 이미지" loading="lazy" />
+      <figcaption>${data.detail} 참고 이미지 · ${result.detailNote}</figcaption>
+    </figure>
     <div class="science-note">${result.explanation}</div>
+    <div class="visual-flow" aria-label="냉동 해동 품질 변화 흐름">
+      <div>
+        <span>1</span>
+        <strong>수분 이동</strong>
+        <p>식품 내부 수분이 얼음 결정 주변으로 이동합니다.</p>
+      </div>
+      <div>
+        <span>2</span>
+        <strong>얼음 결정</strong>
+        <p>결정이 커지면 세포와 조직 사이를 압박합니다.</p>
+      </div>
+      <div>
+        <span>3</span>
+        <strong>조직 손상</strong>
+        <p>해동 뒤 보수성이 낮아져 탄력이 줄어듭니다.</p>
+      </div>
+      <div>
+        <span>4</span>
+        <strong>드립 손실</strong>
+        <p>밖으로 빠진 수분이 맛과 식감 저하로 이어집니다.</p>
+      </div>
+    </div>
     <div class="result-block">
       <h3>예상되는 주요 문제</h3>
       <ul>${renderList(result.problems)}</ul>
@@ -193,11 +378,16 @@ document.querySelector("#predict-form").addEventListener("submit", (event) => {
   const form = event.currentTarget;
   const data = {
     food: getSelectedValue(form, "food"),
+    detail: getSelectedValue(form, "detail"),
     period: getSelectedValue(form, "period"),
     thaw: getSelectedValue(form, "thaw"),
     priority: getSelectedValue(form, "priority")
   };
   renderResult(data, analyzeQuality(data));
+});
+
+document.querySelectorAll('input[name="food"]').forEach((input) => {
+  input.addEventListener("change", updateFoodDetailOptions);
 });
 
 document.querySelectorAll(".nav-button").forEach((button) => {
@@ -208,3 +398,5 @@ document.querySelectorAll(".nav-button").forEach((button) => {
     document.querySelector(`#${button.dataset.page}-page`).classList.add("active");
   });
 });
+
+updateFoodDetailOptions();
